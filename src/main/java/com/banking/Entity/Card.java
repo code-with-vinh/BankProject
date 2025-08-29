@@ -2,6 +2,7 @@ package com.banking.Entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "Card")
@@ -26,6 +27,9 @@ public class Card {
 
     @Column(name = "status", nullable = false, length = 20)
     private String status;
+
+    @Column(name = "credit_limit")
+    private BigDecimal creditLimit;
 
 
     public Card() {}
@@ -87,5 +91,21 @@ public class Card {
                 ", expiryDate=" + expiryDate +
                 ", status='" + status + '\'' +
                 '}';
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public BigDecimal getCreditLimit() {
+        return creditLimit;
+    }
+
+    public void setCreditLimit(BigDecimal creditLimit) {
+        this.creditLimit = creditLimit;
     }
 }

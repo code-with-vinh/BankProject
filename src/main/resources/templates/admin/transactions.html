@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử giao dịch - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.2);
+        }
+        .main-content {
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .badge-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        .badge-pending {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+        }
+        .badge-failed {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+        }
+        .badge-transfer {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+        .badge-withdrawal {
+            background: linear-gradient(45deg, #6f42c1, #e83e8c);
+        }
+        .badge-deposit {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        .amount-positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .amount-negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar">
+                    <div class="p-4">
+                        <h4 class="text-white text-center mb-4">
+                            <i class="fas fa-shield-alt"></i> Admin Panel
+                        </h4>
+                        <nav class="nav flex-column">
+                            <a class="nav-link" href="/admin/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                            </a>
+                            <a class="nav-link" href="/admin/accounts">
+                                <i class="fas fa-users me-2"></i> Quản lý tài khoản
+                            </a>
+                            <a class="nav-link" href="/admin/cards">
+                                <i class="fas fa-credit-card me-2"></i> Quản lý thẻ
+                            </a>
+                            <a class="nav-link active" href="/admin/transactions">
+                                <i class="fas fa-exchange-alt me-2"></i> Lịch sử giao dịch
+                            </a>
+                            <a class="nav-link" href="/admin/create-user">
+                                <i class="fas fa-user-plus me-2"></i> Tạo tài khoản mới
+                            </a>
+                            <a class="nav-link" href="/account/profile">
+                                <i class="fas fa-user me-2"></i> Hồ sơ cá nhân
+                            </a>
+                            <a class="nav-link" href="/auth/logout">
+                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-exchange-alt text-primary"></i> Lịch sử giao dịch</h2>
+                        <div>
+                            <a href="/admin/dashboard" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Quay lại Dashboard
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm theo ID giao dịch...">
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select" id="typeFilter">
+                                        <option value="">Tất cả loại</option>
+                                        <option value="TRANSFER">Chuyển khoản</option>
+                                        <option value="WITHDRAWAL">Rút tiền</option>
+                                        <option value="DEPOSIT">Nạp tiền</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="SUCCESS">Thành công</option>
+                                        <option value="PENDING">Đang xử lý</option>
+                                        <option value="FAILED">Thất bại</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="date" class="form-control" id="dateFilter" placeholder="Lọc theo ngày">
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                                        <i class="fas fa-times"></i> Xóa bộ lọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transactions Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-list"></i> Danh sách giao dịch 
+                                <span class="badge bg-primary ms-2" th:text="${transactions.size()}">0</span>
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Ngày giao dịch</th>
+                                            <th>Số tiền</th>
+                                            <th>Loại giao dịch</th>
+                                            <th>Trạng thái</th>
+                                            <th>Thẻ gửi</th>
+                                            <th>Thẻ nhận</th>
+                                            <th>Chủ tài khoản</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="transaction : ${transactions}">
+                                            <td th:text="${transaction.id}">1</td>
+                                            <td th:text="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}"></td>
+                                            <td>
+                                                <span th:if="${transaction.amount != null}"
+                                                    th:class="${transaction.amount.compareTo(ZERO) >= 0 ? 'amount-positive' : 'amount-negative'}"
+                                                    th:text="${#numbers.formatDecimal(transaction.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'">
+                                                </span>
+                                                <span th:if="${transaction.amount == null}" class="text-muted">-</span>
+                                            </td>
+
+                                            <td>
+                                                <span th:if="${transaction.type == 'TRANSFER'}" 
+                                                      class="badge badge-transfer text-white">Chuyển khoản</span>
+                                                <span th:if="${transaction.type == 'WITHDRAWAL'}" 
+                                                      class="badge badge-withdrawal text-white">Rút tiền</span>
+                                                <span th:if="${transaction.type == 'DEPOSIT'}" 
+                                                      class="badge badge-deposit text-white">Nạp tiền</span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${transaction.status == 'SUCCESS'}" 
+                                                      class="badge badge-success text-white">Thành công</span>
+                                                <span th:if="${transaction.status == 'PENDING'}" 
+                                                      class="badge badge-pending text-white">Đang xử lý</span>
+                                                <span th:if="${transaction.status == 'FAILED'}" 
+                                                      class="badge badge-failed text-white">Thất bại</span>
+                                            </td>
+                                            <td th:text="${transaction.cardSend}">123456789012</td>
+                                            <td th:text="${transaction.cardReceiptNumber}">987654321098</td>
+                                            <td th:text="${transaction.account != null ? transaction.account.customerName : 'N/A'}">Nguyễn Văn A</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-info" 
+                                                            onclick="showTransactionDetails(this)"
+                                                            th:data-transaction-id="${transaction.id}"
+                                                            th:data-transaction-date="${#temporals.format(transaction.transactionDate, 'dd/MM/yyyy')}"
+                                                            th:data-transaction-amount="${transaction.amount}"
+                                                            th:data-transaction-type="${transaction.type}"
+                                                            th:data-transaction-status="${transaction.status}"
+                                                            th:data-transaction-card-send="${transaction.cardSend}"
+                                                            th:data-transaction-card-receipt="${transaction.cardReceiptNumber}"
+                                                            th:data-account-email="${transaction.account != null ? transaction.account.email : 'N/A'}"
+                                                            title="Xem chi tiết">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div class="modal fade" id="transactionDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết giao dịch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Thông tin giao dịch</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>ID giao dịch:</strong></td>
+                                    <td id="modalTransactionId"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ngày giao dịch:</strong></td>
+                                    <td id="modalTransactionDate"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Số tiền:</strong></td>
+                                    <td id="modalTransactionAmount"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Loại giao dịch:</strong></td>
+                                    <td id="modalTransactionType"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Trạng thái:</strong></td>
+                                    <td id="modalTransactionStatus"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Thông tin thẻ</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Thẻ gửi:</strong></td>
+                                    <td id="modalCardSend"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Thẻ nhận:</strong></td>
+                                    <td id="modalCardReceipt"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Chủ tài khoản:</strong></td>
+                                    <td id="modalAccountName"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td id="modalAccountEmail"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const transactionId = row.cells[0].textContent.toLowerCase();
+                
+                if (transactionId.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.getElementById('typeFilter').addEventListener('change', filterTable);
+        document.getElementById('statusFilter').addEventListener('change', filterTable);
+        document.getElementById('dateFilter').addEventListener('change', filterTable);
+
+        function filterTable() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const type = row.cells[3].textContent.trim();
+                const status = row.cells[4].textContent.trim();
+                const date = row.cells[1].textContent.trim();
+                
+                const typeMatch = !typeFilter || type === typeFilter;
+                const statusMatch = !statusFilter || status === statusFilter;
+                const dateMatch = !dateFilter || date.includes(dateFilter);
+                
+                if (typeMatch && statusMatch && dateMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => row.style.display = '');
+        }
+
+        function showTransactionDetails(button) {
+            const transactionId = button.getAttribute('data-transaction-id');
+            const transactionDate = button.getAttribute('data-transaction-date');
+            const transactionAmount = button.getAttribute('data-transaction-amount');
+            const transactionType = button.getAttribute('data-transaction-type');
+            const transactionStatus = button.getAttribute('data-transaction-status');
+            const cardSend = button.getAttribute('data-transaction-card-send');
+            const cardReceipt = button.getAttribute('data-transaction-card-receipt');
+            const accountName = button.getAttribute('data-account-name');
+            const accountEmail = button.getAttribute('data-account-email');
+            
+            document.getElementById('modalTransactionId').textContent = transactionId;
+            document.getElementById('modalTransactionDate').textContent = transactionDate;
+            document.getElementById('modalTransactionAmount').textContent = transactionAmount ? transactionAmount + ' VND' : '-';
+            document.getElementById('modalTransactionType').textContent = transactionType;
+            document.getElementById('modalTransactionStatus').textContent = transactionStatus;
+            document.getElementById('modalCardSend').textContent = cardSend || '-';
+            document.getElementById('modalCardReceipt').textContent = cardReceipt || '-';
+            document.getElementById('modalAccountName').textContent = accountName;
+            document.getElementById('modalAccountEmail').textContent = accountEmail;
+            
+            new bootstrap.Modal(document.getElementById('transactionDetailsModal')).show();
+        }
+    </script>
+</body>
+</html>

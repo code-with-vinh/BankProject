@@ -14,17 +14,17 @@
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav ms-auto">
             <!-- Khi chưa đăng nhập -->
-            <li class="nav-item" th:if="${session.account == null}">
+            <li class="nav-item" th:if="${currentAccount == null}">
                 <a class="nav-link" th:href="@{/auth/register}">Register</a>
             </li>
-            <li class="nav-item" th:if="${session.account == null}">
+            <li class="nav-item" th:if="${currentAccount == null}">
                 <a class="nav-link" th:href="@{/auth/login}">Login</a>
             </li>
 
             <!-- Khi đã đăng nhập -->
-            <li class="nav-item dropdown" th:if="${session.account != null}">
+            <li class="nav-item dropdown" th:if="${currentAccount != null}">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                    <span th:text="${session.account.customerName}">Profile</span>
+                    <span th:text="${currentAccount.customerName}">Profile</span>
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" th:href="@{/account/profile}">Thông tin cá nhân</a></li>

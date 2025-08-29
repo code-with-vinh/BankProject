@@ -25,6 +25,9 @@ public class Account {
     @Column(name = "phone_number", nullable = false, length = 11)
     private String phoneNumber;
 
+    @Column(name = "level", nullable = false, length = 20)
+    private String level = "SILVER";
+
     public Account() {
     }
 
@@ -82,6 +85,14 @@ public class Account {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
     }
 
     @Override
