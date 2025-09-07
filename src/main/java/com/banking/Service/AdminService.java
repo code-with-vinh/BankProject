@@ -8,7 +8,11 @@ import com.banking.Repository.AccountRepository;
 import com.banking.Repository.BalanceRepository;
 import com.banking.Repository.CardRepository;
 import com.banking.Repository.TransactionRepository;
+import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.*;
 import org.springframework.stereotype.Service;
 
@@ -33,42 +37,42 @@ public class AdminService {
 
     private PasswordEncoder passwordEncoder;
 
-    // Lấy tổng số tài khoản
+    @Cacheable("totalAccount")
     public long getTotalAccounts() {
         return accountRepository.count();
     }
 
-    // Lấy tổng số thẻ
+    @Cacheable("totalCard")
     public long getTotalCards() {
         return cardRepository.count();
     }
 
-    // Lấy tổng số giao dịch
+    @Cacheable("totalTransaction")
     public long getTotalTransactions() {
         return transactionRepository.count();
     }
 
-    // Lấy tất cả tài khoản
+    @Cacheable("accounts")
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
 
-    // Lấy tất cả thẻ
+    @Cacheable("cards")
     public List<Card> getAllCards() {
         return cardRepository.findAll();
     }
 
-    // Lấy tất cả giao dịch
+    @Cacheable("transactions")
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
 
-    // Lấy tài khoản theo ID
+    @Cacheable(value = "account", key = "#accountId")
     public Account getAccountById(Long accountId) {
         return accountRepository.findById(accountId).orElse(null);
     }
 
-    // Lấy thẻ theo tài khoản
+    @Cacheable(value = "cardsByAccount", key = "#accountId")
     public List<Card> getCardsByAccount(Long accountId) {
         Account account = getAccountById(accountId);
         if (account != null) {
@@ -77,7 +81,7 @@ public class AdminService {
         return List.of();
     }
 
-    // Lấy giao dịch theo tài khoản
+    @Cacheable(value = "transactionsByAccount", key = "#accountId")
     public List<Transaction> getTransactionsByAccount(Long accountId) {
         Account account = getAccountById(accountId);
         if (account != null) {
@@ -116,33 +120,31 @@ public class AdminService {
     }
 
 
-    // Xóa tài khoản
     public void deleteAccount(Long accountId) {
         Optional<Account> accountOpt = accountRepository.findById(accountId);
         if (accountOpt.isPresent()) {
             Account account = accountOpt.get();
-            
+
             // Kiểm tra xem tài khoản có thẻ không
             List<Card> cards = cardRepository.findByAccount(account);
             if (!cards.isEmpty()) {
                 throw new RuntimeException("Không thể xóa tài khoản có thẻ");
             }
-            
+
             accountRepository.delete(account);
         }
     }
 
-    // Cập nhật role của user
     public void updateUserRole(Long accountId, String role) {
         Optional<Account> accountOpt = accountRepository.findById(accountId);
         if (accountOpt.isPresent()) {
             Account account = accountOpt.get();
-            
+
             // Kiểm tra role hợp lệ
             if (!role.equals("Customer") && !role.equals("Admin")) {
                 throw new RuntimeException("Role không hợp lệ");
             }
-            
+
             account.setRole(role);
             accountRepository.save(account);
         }
@@ -153,12 +155,12 @@ public class AdminService {
         Optional<Account> accountOpt = accountRepository.findById(accountId);
         if (accountOpt.isPresent()) {
             Account account = accountOpt.get();
-            
+
             // Kiểm tra level hợp lệ
             if (!level.equals("SILVER") && !level.equals("GOLD") && !level.equals("PLATINUM")) {
                 throw new RuntimeException("Level không hợp lệ");
             }
-            
+
             account.setLevel(level);
             accountRepository.save(account);
         }
@@ -169,12 +171,12 @@ public class AdminService {
         Optional<Card> cardOpt = cardRepository.findById(cardId);
         if (cardOpt.isPresent()) {
             Card card = cardOpt.get();
-            
+
             // Kiểm tra trạng thái hợp lệ
             if (!status.equals("ACTIVE") && !status.equals("INACTIVE") && !status.equals("EXPIRED")) {
                 throw new RuntimeException("Trạng thái không hợp lệ");
             }
-            
+
             card.setStatus(status);
             cardRepository.save(card);
         }
@@ -207,7 +209,7 @@ public class AdminService {
 
         Card card = cardOpt.get();
         Account account = card.getAccount();
-        
+
         // Chỉ cho phép nạp tiền vào thẻ debit
         if (!"DEBIT".equals(card.getCardType())) {
             throw new RuntimeException("Chỉ có thể nạp tiền vào thẻ debit");
@@ -240,7 +242,7 @@ public class AdminService {
         // Cập nhật số dư
         BigDecimal currentBalance = balance.getAvailableBalance() != null ? balance.getAvailableBalance() : BigDecimal.ZERO;
         balance.setAvailableBalance(currentBalance.add(depositAmount));
-        
+
         // Lưu balance
         balanceRepository.save(balance);
 

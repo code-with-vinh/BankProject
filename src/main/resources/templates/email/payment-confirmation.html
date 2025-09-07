@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận thanh toán</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .success-icon {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .success-icon i {
+            font-size: 4rem;
+            color: #4facfe;
+        }
+        
+        .payment-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .detail-value {
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .amount-highlight {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        .amount-highlight .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .amount-highlight .currency {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .footer p {
+            margin: 0 0 10px 0;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .security-note {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .security-note i {
+            color: #2196f3;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+            }
+            
+            .detail-value {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>🏦 Banking System</h1>
+            <p>Xác nhận thanh toán thành công</p>
+        </div>
+        
+        <div class="content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            
+            <h2 style="text-align: center; color: #2d3748; margin-bottom: 30px;">
+                Thanh toán của bạn đã được xử lý thành công!
+            </h2>
+            
+            <div class="amount-highlight">
+                <div class="amount" th:text="${amount}">1,000,000 VND</div>
+                <div class="currency" th:text="${currency}">VND</div>
+            </div>
+            
+            <div class="payment-details">
+                <h3 style="margin-top: 0; color: #2d3748;">Chi tiết giao dịch</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Mã giao dịch:</span>
+                    <span class="detail-value" th:text="${paymentId}">#PAY001</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Tài khoản:</span>
+                    <span class="detail-value" th:text="${accountId}">ACC001</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Tên khách hàng:</span>
+                    <span class="detail-value" th:text="${customerName}">Nguyễn Văn A</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Thời gian:</span>
+                    <span class="detail-value" th:text="${date}">15/01/2024 10:30:00</span>
+                </div>
+            </div>
+            
+            <div class="security-note">
+                <i class="fas fa-shield-alt"></i>
+                <strong>Lưu ý bảo mật:</strong> Nếu bạn không thực hiện giao dịch này, vui lòng liên hệ ngay với chúng tôi qua hotline 1900-xxxx.
+            </div>
+            
+            <p style="text-align: center; color: #6c757d; margin-top: 30px;">
+                Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Banking System</strong></p>
+            <p>Email: <a href="mailto:support@bankingsystem.com">support@bankingsystem.com</a></p>
+            <p>Hotline: 1900-xxxx</p>
+            <p>© 2024 Banking System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

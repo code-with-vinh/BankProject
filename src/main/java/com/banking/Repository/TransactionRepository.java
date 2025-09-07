@@ -25,3 +25,4 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     BigDecimal getTotalWithdraw(Long accountId);
 
 }
+

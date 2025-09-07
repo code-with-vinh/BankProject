@@ -1,11 +1,13 @@
 package com.banking.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "Card")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

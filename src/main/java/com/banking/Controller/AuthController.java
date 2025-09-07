@@ -5,19 +5,25 @@ import com.banking.Repository.AccountRepository;
 import com.banking.Service.AccountService;
 import com.banking.Service.AuthService;
 import com.banking.Security.JwtUtil;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import java.util.Map;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+/**
+ * Authentication Controller
+ * 
+ * Handles user authentication operations including registration, login, and logout.
+ * Manages JWT token creation and cookie handling for session management.
+ * 
+ * @author Banking System Team
+ * @version 1.0
+ * @since 2024
+ */
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
@@ -34,14 +40,25 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // Hiển thị form đăng ký
+    /**
+     * Display the user registration form
+     * 
+     * @param model Spring MVC model to pass data to the view
+     * @return The registration form view name
+     */
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("account", new Account());
         return "auth/register";
     }
 
-    // Xử lý đăng ký
+    /**
+     * Process user registration
+     * 
+     * @param account The account information from the registration form
+     * @param model Spring MVC model for passing messages to the view
+     * @return Redirect to login page on success, or back to registration form on error
+     */
     @PostMapping("/register")
     public String register(@ModelAttribute("account") Account account, Model model) {
         try {
@@ -56,11 +73,25 @@ public class AuthController {
 
 
 
+    /**
+     * Display the user login form
+     * 
+     * @return The login form view name
+     */
     @GetMapping("/login")
     public String showLoginForm() {
         return "auth/login";
     }
 
+    /**
+     * Process user login authentication
+     * 
+     * @param email User's email address
+     * @param password User's password
+     * @param response HTTP response for setting cookies
+     * @param attributes Redirect attributes for passing messages
+     * @return Redirect to appropriate dashboard based on user role
+     */
     @PostMapping("/login")
     public RedirectView doLogin(@RequestParam String email,
                                 @RequestParam String password,
@@ -72,7 +103,7 @@ public class AuthController {
             return new RedirectView("/auth/login");
         }
 
-        // Tạo JWT
+        // Create JWT token for session management
         String token = jwtUtil.generateToken(acc.getEmail(), acc.getRole());
         Cookie jwtCookie = new Cookie("JWT", token);
         jwtCookie.setHttpOnly(true);
@@ -83,7 +114,12 @@ public class AuthController {
         return new RedirectView(redirectUrl);
     }
 
-
+    /**
+     * Process user logout
+     * 
+     * @param response HTTP response for clearing cookies
+     * @return Redirect to home page
+     */
     @GetMapping("/logout")
     @ResponseBody
     public RedirectView logout(HttpServletResponse response) {

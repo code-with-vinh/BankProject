@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo admin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .notification-icon {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .notification-icon i {
+            font-size: 4rem;
+            color: #667eea;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .status-success {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+        
+        .status-failed {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+        
+        .status-pending {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+        
+        .payment-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .detail-value {
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .amount-highlight {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        .amount-highlight .amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .amount-highlight .currency {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .admin-actions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .admin-actions h4 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        
+        .admin-actions ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        
+        .admin-actions li {
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .footer p {
+            margin: 0 0 10px 0;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+            }
+            
+            .detail-value {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>🏦 Banking System Admin</h1>
+            <p>Thông báo giao dịch mới</p>
+        </div>
+        
+        <div class="content">
+            <div class="notification-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            
+            <h2 style="text-align: center; color: #2d3748; margin-bottom: 30px;">
+                Có giao dịch thanh toán mới cần xem xét
+            </h2>
+            
+            <div style="text-align: center;">
+                <span class="status-badge status-success" th:text="${status}">SUCCESS</span>
+            </div>
+            
+            <div class="amount-highlight">
+                <div class="amount" th:text="${amount}">1,000,000 VND</div>
+                <div class="currency" th:text="${currency}">VND</div>
+            </div>
+            
+            <div class="payment-details">
+                <h3 style="margin-top: 0; color: #2d3748;">Thông tin giao dịch</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Mã giao dịch:</span>
+                    <span class="detail-value" th:text="${paymentId}">#PAY001</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Tài khoản:</span>
+                    <span class="detail-value" th:text="${accountId}">ACC001</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Tên khách hàng:</span>
+                    <span class="detail-value" th:text="${customerName}">Nguyễn Văn A</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Email khách hàng:</span>
+                    <span class="detail-value" th:text="${customerEmail}">customer@example.com</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Thời gian:</span>
+                    <span class="detail-value" th:text="${date}">15/01/2024 10:30:00</span>
+                </div>
+            </div>
+            
+            <div class="admin-actions">
+                <h4><i class="fas fa-tools"></i> Hành động cần thực hiện:</h4>
+                <ul>
+                    <li>Kiểm tra chi tiết giao dịch trong admin panel</li>
+                    <li>Xác minh thông tin khách hàng nếu cần</li>
+                    <li>Liên hệ khách hàng nếu có vấn đề</li>
+                    <li>Cập nhật trạng thái giao dịch</li>
+                </ul>
+            </div>
+            
+            <p style="text-align: center; color: #6c757d; margin-top: 30px;">
+                Vui lòng đăng nhập vào admin panel để xem chi tiết.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Banking System Admin Panel</strong></p>
+            <p>URL: <a href="http://localhost:8080/admin/dashboard">http://localhost:8080/admin/dashboard</a></p>
+            <p>© 2024 Banking System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

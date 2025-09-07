@@ -18,6 +18,17 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Admin Controller
+ * 
+ * Handles all administrative operations including user management,
+ * card management, transaction monitoring, and system administration.
+ * Requires admin role for all operations.
+ * 
+ * @author Banking System Team
+ * @version 1.0
+ * @since 2024
+ */
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
@@ -31,7 +42,11 @@ public class AdminController {
     @Autowired
     private AccountService accountService;
 
-    // Kiểm tra quyền admin
+    /**
+     * Check if the current user has admin privileges
+     * 
+     * @return true if user is admin, false otherwise
+     */
     private boolean isAdmin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -40,7 +55,12 @@ public class AdminController {
         return authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_Admin"));
     }
 
-    // Dashboard admin
+    /**
+     * Display the admin dashboard with system statistics
+     * 
+     * @param model Spring MVC model to pass data to the view
+     * @return Admin dashboard view name or redirect to login if not admin
+     */
     @GetMapping("/dashboard")
     public String adminDashboard(Model model) {
         if (!isAdmin()) {

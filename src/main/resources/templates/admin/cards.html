@@ -65,17 +65,23 @@
                             <i class="fas fa-shield-alt"></i> Admin Panel
                         </h4>
                         <nav class="nav flex-column">
-                            <a class="nav-link" href="/admin/dashboard">
+                            <a class="nav-link active" href="/admin/dashboard">
                                 <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                             </a>
                             <a class="nav-link" href="/admin/accounts">
                                 <i class="fas fa-users me-2"></i> Quản lý tài khoản
                             </a>
-                            <a class="nav-link active" href="/admin/cards">
+                            <a class="nav-link" href="/admin/cards">
                                 <i class="fas fa-credit-card me-2"></i> Quản lý thẻ
                             </a>
                             <a class="nav-link" href="/admin/transactions">
                                 <i class="fas fa-exchange-alt me-2"></i> Lịch sử giao dịch
+                            </a>
+                            <a class="nav-link" href="/admin/payment/create-request">
+                                <i class="fas fa-exchange-alt me-2"></i> Tạo thanh toán
+                            </a>
+                            <a class="nav-link" href="/admin/payment/all-requests">
+                                <i class="fas fa-exchange-alt me-2"></i> Danh sách thanh toán
                             </a>
                             <a class="nav-link" href="/admin/create-user">
                                 <i class="fas fa-user-plus me-2"></i> Tạo tài khoản mới
@@ -151,7 +157,7 @@
                         <div class="card-header">
                             <h5 class="card-title mb-0">
                                 <i class="fas fa-list"></i> Danh sách thẻ 
-                                <span class="badge bg-primary ms-2" th:text="${cards.size()}">0</span>
+                                <span class="badge bg-primary ms-2" th:text="${cards != null ? cards.size() : 0}">0</span>
                             </h5>
                         </div>
                         <div class="card-body p-0">
@@ -166,7 +172,6 @@
                                             <th>Ngày hết hạn</th>
                                             <th>Trạng thái</th>
                                             <th>Hạn mức tín dụng</th>
-                                            <th>Số dư</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
@@ -176,14 +181,14 @@
                                             <td>
                                                 <span class="card-number" th:text="${card.cardNumber}">123456789012</span>
                                             </td>
-                                            <td th:text="${card.account.customerName}">Nguyễn Văn A</td>
+                                            <td th:text="${card.account != null ? card.account.customerName : 'N/A'}">Nguyễn Văn A</td>
                                             <td>
                                                 <span th:if="${card.cardType == 'DEBIT'}" 
                                                       class="badge badge-debit text-white">Debit</span>
                                                 <span th:if="${card.cardType == 'CREDIT'}" 
                                                       class="badge badge-credit text-white">Credit</span>
                                             </td>
-                                            <td th:text="${#temporals.format(card.expiryDate, 'dd/MM/yyyy')}">01/01/2025</td>
+                                            <td th:text="${card.expiryDate != null ? card.expiryDate : '-'}">01/01/2025</td>
                                             <td>
                                                 <span th:if="${card.status == 'ACTIVE'}" 
                                                       class="badge badge-active text-white">Active</span>
@@ -194,44 +199,44 @@
                                             </td>
                                             <td>
                                                 <span th:if="${card.creditLimit != null}" 
-                                                      th:text="${#numbers.formatDecimal(card.creditLimit, 0, 'COMMA', 0, 'POINT')} + ' VND'">50,000,000 VND</span>
+                                                      th:text="${card.creditLimit} + ' VND'">50,000,000 VND</span>
                                                 <span th:if="${card.creditLimit == null}" class="text-muted">-</span>
                                             </td>
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <button type="button" class="btn btn-sm btn-info" 
                                                             onclick="showCardDetails(this)"
-                                                            th:data-card-id="${card.cardId}"
-                                                            th:data-card-number="${card.cardNumber}"
-                                                            th:data-card-type="${card.cardType}"
-                                                            th:data-card-status="${card.status}"
-                                                            th:data-card-expiry="${#temporals.format(card.expiryDate, 'dd/MM/yyyy')}"
-                                                            th:data-card-limit="${card.creditLimit}"
-                                                            th:data-account-name="${card.account.customerName}"
-                                                            th:data-account-email="${card.account.email}"
+                                                            th:attr="data-card-id=${card.cardId},
+                                                                    data-card-number=${card.cardNumber},
+                                                                    data-card-type=${card.cardType},
+                                                                    data-card-status=${card.status},
+                                                                    data-card-expiry=${card.expiryDate != null ? card.expiryDate : '-'},
+                                                                    data-card-limit=${card.creditLimit},
+                                                                    data-account-name=${card.account != null ? card.account.customerName : 'N/A'},
+                                                                    data-account-email=${card.account != null ? card.account.email : 'N/A'}"
                                                             title="Xem chi tiết">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
                                                     <button type="button" class="btn btn-sm btn-warning" 
                                                             onclick="showStatusModal(this)"
-                                                            th:data-card-id="${card.cardId}"
-                                                            th:data-card-status="${card.status}"
+                                                            th:attr="data-card-id=${card.cardId},
+                                                                    data-card-status=${card.status}"
                                                             title="Cập nhật trạng thái">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     <button th:if="${card.cardType == 'DEBIT'}" 
                                                             type="button" class="btn btn-sm btn-success" 
                                                             onclick="showDepositModal(this)"
-                                                            th:data-card-id="${card.cardId}"
-                                                            th:data-card-number="${card.cardNumber}"
-                                                            th:data-account-name="${card.account.customerName}"
+                                                            th:attr="data-card-id=${card.cardId},
+                                                                    data-card-number=${card.cardNumber},
+                                                                    data-account-name=${card.account.customerName}"
                                                             title="Nạp tiền">
                                                         <i class="fas fa-money-bill-wave"></i>
                                                     </button>
                                                     <button type="button" class="btn btn-sm btn-danger" 
                                                             onclick="confirmDeleteCard(this)"
-                                                            th:data-card-id="${card.cardId}"
-                                                            th:data-card-number="${card.cardNumber}"
+                                                            th:attr="data-card-id=${card.cardId},
+                                                                    data-card-number=${card.cardNumber}"
                                                             title="Xóa thẻ">
                                                         <i class="fas fa-trash"></i>
                                                     </button>

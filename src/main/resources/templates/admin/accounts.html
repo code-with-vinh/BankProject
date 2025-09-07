@@ -61,10 +61,10 @@
                             <i class="fas fa-shield-alt"></i> Admin Panel
                         </h4>
                         <nav class="nav flex-column">
-                            <a class="nav-link" href="/admin/dashboard">
+                            <a class="nav-link active" href="/admin/dashboard">
                                 <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                             </a>
-                            <a class="nav-link active" href="/admin/accounts">
+                            <a class="nav-link" href="/admin/accounts">
                                 <i class="fas fa-users me-2"></i> Quản lý tài khoản
                             </a>
                             <a class="nav-link" href="/admin/cards">
@@ -72,6 +72,12 @@
                             </a>
                             <a class="nav-link" href="/admin/transactions">
                                 <i class="fas fa-exchange-alt me-2"></i> Lịch sử giao dịch
+                            </a>
+                            <a class="nav-link" href="/admin/payment/create-request">
+                                <i class="fas fa-exchange-alt me-2"></i> Tạo thanh toán
+                            </a>
+                            <a class="nav-link" href="/admin/payment/all-requests">
+                                <i class="fas fa-exchange-alt me-2"></i> Danh sách thanh toán
                             </a>
                             <a class="nav-link" href="/admin/create-user">
                                 <i class="fas fa-user-plus me-2"></i> Tạo tài khoản mới
@@ -104,6 +110,9 @@
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2><i class="fas fa-users text-primary"></i> Quản lý tài khoản</h2>
+                        <a href="/admin/dashboard" class="btn btn-secondary me-2">
+                            <i class="fas fa-arrow-left me-2"></i>Quay lại Dashboard
+                        </a>
                         <a href="/admin/create-user" class="btn btn-primary">
                             <i class="fas fa-user-plus me-2"></i>Tạo tài khoản mới
                         </a>
@@ -190,22 +199,22 @@
                                                     </a>
                                                     <button type="button" class="btn btn-sm btn-warning" 
                                                             onclick="showEditRoleModal(this)" 
-                                                            th:data-account-id="${account.accountId}"
-                                                            th:data-account-role="${account.role}"
+                                                            th:attr="data-account-id=${account.accountId},
+                                                                    data-account-role=${account.role}"
                                                             title="Cập nhật role">
                                                         <i class="fas fa-user-tag"></i>
                                                     </button>
                                                     <button type="button" class="btn btn-sm btn-success" 
                                                             onclick="showEditLevelModal(this)" 
-                                                            th:data-account-id="${account.accountId}"
-                                                            th:data-account-level="${account.level}"
+                                                            th:attr="data-account-id=${account.accountId},
+                                                                    data-account-level=${account.level}"
                                                             title="Cập nhật level">
                                                         <i class="fas fa-star"></i>
                                                     </button>
                                                     <button type="button" class="btn btn-sm btn-danger" 
                                                             onclick="confirmDelete(this)"
-                                                            th:data-account-id="${account.accountId}"
-                                                            th:data-account-name="${account.customerName}"
+                                                            th:attr="data-account-id=${account.accountId},
+                                                                    data-account-name=${account.customerName}"
                                                             title="Xóa tài khoản">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
